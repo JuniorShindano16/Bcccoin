@@ -1,4 +1,7 @@
+import 'package:bcccoin/controllers/comptController.dart';
+import 'package:bcccoin/models/compteModel.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DepotAgentPage extends StatefulWidget {
   @override
@@ -8,18 +11,148 @@ class DepotAgentPage extends StatefulWidget {
 class _DepotAgentPageState extends State<DepotAgentPage> {
   String selectedCurrency = 'CDF'; // Devise sélectionnée par défaut
   double currentBalance = 35466.0; // Solde par défaut pour CDF
-  List<double> quickAmounts = [
+  List<double> quickAmountsCDF = [
     10000,
     20000,
     50000,
     100000
   ]; // Montants rapides pour CDF
 
+  List<double> quickAmountsUSD = [10, 20, 50, 100];
+
+  List<double> quickAmounts = [10000, 20000, 50000, 100000];
+
   TextEditingController montantController = TextEditingController();
   TextEditingController numeroAgentController = TextEditingController();
   bool isButtonActive = false; // Bouton "Continuer" actif ou inactif
 
-  // Fonction pour mettre à jour les données selon la devise choisie
+  // Liste des comptes disponibles
+  List<CompteModel> comptes = [];
+  CompteModel? selectedCompte; // Compte sélectionné par l'utilisateur
+
+  List<CompteModel> comptesTop = [];
+
+  CompteController compteController = Get.put(CompteController());
+  // Get.find<CompteController>(); // Récupération du CompteController
+
+  @override
+  void initState() {
+    super.initState();
+    montantController.addListener(validateForm);
+    numeroAgentController.addListener(validateForm);
+    loadComptes();
+  }
+
+  @override
+  void dispose() {
+    montantController.dispose();
+    numeroAgentController.dispose();
+    super.dispose();
+  }
+
+  void loadComptes() {
+    setState(() {
+      comptes =
+          compteController.compteBoxe.values.toList(); // Récupère les comptes
+      print("Comptes chargés : ${comptes[1].name} ${comptes[1].solde}");
+      comptesTop = comptes
+          .where((compte) => compte.devise == 'CDF' || compte.devise == 'USD')
+          .toList();
+
+      // Affiche les détails pour vérifier
+      print(
+          "Comptes chargés : ${comptes.map((c) => '${c.name} (${c.devise}) ${c.solde}').toList()}");
+      print(
+          "Comptes filtrés (CDF et USD) : ${comptesTop.map((c) => '${c.name} (${c.devise})').toList()}");
+    });
+  }
+
+  void updateAmount(double amount) {
+    setState(() {
+      montantController.text = amount.toStringAsFixed(2);
+      validateForm(); // Vérifie si les champs sont remplis
+    });
+  }
+
+  void validateForm() {
+    setState(() {
+      isButtonActive = montantController.text.isNotEmpty &&
+          numeroAgentController.text.isNotEmpty;
+    });
+  }
+
+  void deposit(CompteModel selectedCompte) async {
+    if (selectedCompte != null) {
+      double montant = double.parse(montantController.text);
+
+      print(
+          'Tentative de dépôt de $montant sur le compte ID: ${selectedCompte.id}');
+      print(
+          'Compte sélectionné : ${selectedCompte.name}, Solde : ${selectedCompte.solde}, Devise : ${selectedCompte?.devise}');
+
+      bool success = await compteController.ravitaillerCompte(
+          selectedCompte.id ?? '', // Assurez-vous que l'ID est valide
+          montant,
+          numeroAgentController.text);
+
+      if (success) {
+        setState(() {
+          // Rechargez les données depuis la base pour éviter des incohérences
+          loadComptes();
+          currentBalance = selectedCompte.solde ?? 0.0;
+        });
+
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text('Dépôt effectué avec succès'),
+        //   backgroundColor: Colors.green,
+        // ));
+
+        _showDialog("Succès", "Dépôt effectué avec succès !");
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erreur lors du dépôt'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Aucun compte sélectionné'),
+        backgroundColor: Colors.red,
+      ));
+      // _showDialog("Erreur", "Aucun compte sélectionné.");
+    }
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context, //cez par le contexte approprié
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            title,
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(color: Colors.green),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "OK",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void updateCurrency(String currency) {
     setState(() {
       selectedCurrency = currency;
@@ -31,37 +164,6 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
         quickAmounts = [10, 20, 50, 100];
       }
     });
-  }
-
-  // Fonction pour mettre à jour le champ de texte avec le montant rapide
-  void updateAmount(double amount) {
-    setState(() {
-      montantController.text = amount.toStringAsFixed(2);
-      validateForm(); // Vérifie si les champs sont remplis
-    });
-  }
-
-  // Fonction pour valider le formulaire
-  void validateForm() {
-    setState(() {
-      isButtonActive = montantController.text.isNotEmpty &&
-          numeroAgentController.text.isNotEmpty;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    montantController.addListener(
-        validateForm); // Ajoute un listener pour surveiller les changements
-    numeroAgentController.addListener(validateForm);
-  }
-
-  @override
-  void dispose() {
-    montantController.dispose();
-    numeroAgentController.dispose();
-    super.dispose();
   }
 
   @override
@@ -109,24 +211,35 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                           "Depot sur: ",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
-                        DropdownButton<String>(
-                          value: selectedCurrency,
+                        DropdownButton<CompteModel>(
+                          value: selectedCompte,
                           dropdownColor: Colors.grey[900],
                           style: TextStyle(color: Colors.white),
                           icon:
                               Icon(Icons.arrow_drop_down, color: Colors.white),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'CDF',
-                              child: Text('CDF compte'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'USD',
-                              child: Text('USD compte'),
-                            ),
-                          ],
+                          items: comptes.map((compte) {
+                            return DropdownMenuItem<CompteModel>(
+                              value: compte,
+                              child: Text(
+                                compte.name ?? 'Compte inconnu',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
                           onChanged: (value) {
-                            if (value != null) updateCurrency(value);
+                            setState(() {
+                              selectedCompte =
+                                  value; // Mettez à jour d'abord la sélection
+                              currentBalance = selectedCompte?.solde ??
+                                  0.0; // Met à jour le solde
+                              if (selectedCompte?.devise == 'USD') {
+                                quickAmounts = quickAmountsUSD;
+                              } else if (selectedCompte?.devise == 'CDF') {
+                                quickAmounts = quickAmountsCDF;
+                              }
+                            });
+
+                            validateForm(); // Valider le formulaire après sélection du compte
                           },
                         ),
                       ],
@@ -134,6 +247,7 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                     SizedBox(height: 16),
                     // Numéro Agent
                     TextField(
+                      keyboardType: TextInputType.phone,
                       controller: numeroAgentController,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
@@ -165,7 +279,7 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                           borderSide: BorderSide.none,
                         ),
                         suffix: Text(
-                          "Solde actuel: ${currentBalance.toStringAsFixed(2)} $selectedCurrency",
+                          "Solde actuel: ${selectedCompte != null ? selectedCompte!.solde : 0}",
                           style: TextStyle(color: Colors.green, fontSize: 14),
                         ),
                       ),
@@ -188,7 +302,8 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                 child: ElevatedButton(
                   onPressed: isButtonActive
                       ? () {
-                          // Action du bouton
+                          print(comptes);
+                          deposit(selectedCompte!);
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -224,7 +339,7 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
         padding: EdgeInsets.symmetric(vertical: 12),
       ),
       child: Text(
-        "${amount.toStringAsFixed(1)} $selectedCurrency",
+        "${amount.toStringAsFixed(1)} ${selectedCompte?.devise}",
         style: TextStyle(color: Colors.white, fontSize: 8),
       ),
     );

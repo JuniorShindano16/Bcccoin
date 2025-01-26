@@ -52,6 +52,7 @@ dependencies:
   hive_ce: 
   hive_ce_flutter: 
   local_auth:
+  uuid:
 
 dev_dependencies:
   flutter_test:

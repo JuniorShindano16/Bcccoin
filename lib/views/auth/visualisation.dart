@@ -1,6 +1,6 @@
+import 'package:bcccoin/views/auth/login.dart';
 import 'package:bcccoin/widgets/BottomAppBar.dart';
 import 'package:flutter/material.dart';
-
 
 class NextPage extends StatelessWidget {
   final String name;
@@ -30,8 +30,14 @@ class NextPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Aperçu de votre formulaire'),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black,
+        title: Text(
+          'Aperçu de votre formulaire',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -89,17 +95,19 @@ class NextPage extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => Bottomngnavbarre()
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
+                      );
 
-                            //LoginPage()
-                            ),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text(
+                                'Compte créé , connectez vous maintenant')),
                       );
                     },
                     child: Text('Soumettre'),
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Color.fromARGB(
-                          255, 64, 123, 255), // Couleur personnalisée
+                      backgroundColor: Colors.green, // Couleur personnalisée
                       padding: EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -120,17 +128,19 @@ class NextPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Container(
         padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(color: Colors.grey.shade300),
+        decoration: BoxDecoration(color: Colors.black),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
             IconButton(
-              icon: Icon(Icons.check_circle,
-                  color: Color.fromARGB(255, 64, 123, 255)),
+              icon: Icon(Icons.check_circle, color: Colors.green),
               onPressed: () {},
             ),
           ],

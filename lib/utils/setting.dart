@@ -1,5 +1,9 @@
 import 'package:bcccoin/controllers/homeController.dart';
 import 'package:bcccoin/controllers/userController.dart';
+import 'package:bcccoin/models/TransactionCompteModel.dart';
+import 'package:bcccoin/models/TransactionCompteModel.g.dart';
+import 'package:bcccoin/models/compteModel.dart';
+import 'package:bcccoin/models/compteModel.g.dart';
 import 'package:bcccoin/models/userModel.dart';
 import 'package:bcccoin/models/userModel.g.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +22,14 @@ class Setting {
 
       // Enregistrer les adaptateurs
       Hive.registerAdapter(UserModelAdapter()); // typeId: 1
-
-
+      Hive.registerAdapter(CompteModelAdapter()); // typeId: 2
+      Hive.registerAdapter(TransactionCompteModelAdapter()); // typeId: 3
 
       // Ouvrir les boxes
       await Hive.openBox<UserModel>(userBox);
-   
+      await Hive.openBox<CompteModel>(compteBox);
+      await Hive.openBox<TransactionCompteModel>(transactionCompteBox);
+      // await Hive.openBox<TransactionCompteModel>(transactionCompteBox);
 
       await GetStorage.init();
 
@@ -47,7 +53,7 @@ class Setting {
       storage = GetStorage("Bcc");
     } catch (e) {
       // await GetStorage.init();
-      print(e);
+      print("c'est ici qu'est l'erreur " + "$e");
     }
 
     // storageIdentity = GetStorage("SawaidIdentity");
@@ -70,5 +76,4 @@ class Setting {
       return Get.put(UserController());
     }
   }
-
 }

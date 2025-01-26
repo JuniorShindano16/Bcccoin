@@ -1,6 +1,6 @@
 class Bdcolumnnames {
-  //User 
- static String UserId = "id";
+  //User
+  static String UserId = "id";
   static String UserName = "name";
   static String UserEmail = "email";
   static String UserPhone = "phoneNumber";
@@ -12,4 +12,30 @@ class Bdcolumnnames {
   static String UserQuartier = "quartier";
   static String UserCommune = "commune";
   static String UserPassword = "password";
+
+  //Compte
+
+  static String CompteId = "id";
+  static String CompteUserId = "user_id";
+  static String CompteDevise = "devise";
+  static String CompteName = "name";
+  static String CompteSolde = "solde";
+
+  //Transaction entre compte
+
+  static String TransactionCompteId = "id";
+  static String TransactionCompteSource = "compteSourceId";
+  static String TransactionCompteDestination = "destination";
+  static String TransactionCompteMontantTransactions ="montantRetire" ;
+  static String TransactionCompteSoldeSourceAvant = "soldeSourceAvant";
+  static String TransactionCompteSoldeDestinationAvant = "soldeDestinationAvant";
+  static String TransactionCompteSoldeSource = "soldeSource";
+  static String TransactionCompteSoldeDestination = "soldeDestination";
+  static String TransactionCompteTaux = "taux";
+  static String TransactionCompteDate = "date";
+   static String TransactionCompteidAgent = "idAgent";
+
+
 }
+
+

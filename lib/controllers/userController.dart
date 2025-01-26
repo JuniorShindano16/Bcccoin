@@ -1,9 +1,11 @@
 import 'package:bcccoin/bd/hive_boxes.dart';
+import 'package:bcccoin/controllers/comptController.dart';
+import 'package:bcccoin/models/TransactionCompteModel.dart';
+import 'package:bcccoin/models/compteModel.dart';
 import 'package:bcccoin/models/userModel.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:get/get.dart';
-
 
 class UserController extends GetxController {
   late Box<UserModel> userBoxe;
@@ -12,6 +14,7 @@ class UserController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     userBoxe = Hive.box<UserModel>(userBox);
     loadUserData();
   }
@@ -21,14 +24,18 @@ class UserController extends GetxController {
       // Réinitialiser l'utilisateur actuel
       userModelTosend = null;
       await Hive.box<UserModel>(userBox).clear();
-    
+      await Hive.box<CompteModel>(compteBox).clear();
+      await Hive.box<TransactionCompteModel>(transactionCompteBox).clear();
+      // TransactionCompteModel
+
       // Fermer toutes les boxes Hive
       await Hive.box<UserModel>(userBox).close();
-   
+      await Hive.box<CompteModel>(compteBox).close();
+      await Hive.box<TransactionCompteModel>(transactionCompteBox).close();
 
       // Réinitialiser le stockage local si nécessaire
       await GetStorage().erase();
-      await GetStorage("Hcm").erase();
+      await GetStorage("Bcc").erase();
 
       return true;
     } catch (e) {
@@ -57,6 +64,7 @@ class UserController extends GetxController {
 
   Future<bool> registerUser(UserModel user) async {
     try {
+      Hive.openBox(userBox);
       // Vérifier si l'utilisateur existe déjà
       final exists =
           userBoxe.values.any((u) => u.phonenumber == user.phonenumber);
@@ -72,11 +80,58 @@ class UserController extends GetxController {
       await userBoxe.add(user);
 
       print('added');
+      await _addUserAccounts(user);
       return true;
     } catch (e) {
       print('Erreur d\'enregistrement: $e');
       return false;
     }
+  }
+
+  Future<void> _addUserAccounts(UserModel user) async {
+    Get.put(CompteController());
+    final compteController = Get.find<
+        CompteController>(); // On suppose que GetX est utilisé pour gérer les controllers
+
+    // Créer les comptes avec solde 0 et les devises spécifiées
+    List<CompteModel> comptes = [
+      CompteModel(
+        devise: 'USD',
+        name: 'USD Account',
+        solde: 0.0,
+        userModel: user, // Associer l'utilisateur à chaque compte
+      ),
+      CompteModel(
+        devise: 'CDF',
+        name: 'CDF Account',
+        solde: 0.0,
+        userModel: user,
+      ),
+      CompteModel(
+        devise: 'CBC',
+        name: 'CBC Account',
+        solde: 0.0,
+        userModel: user,
+      ),
+      CompteModel(
+        devise: 'BTC',
+        name: 'BTC Account',
+        solde: 0.0,
+        userModel: user,
+      ),
+      CompteModel(
+        devise: 'ETH',
+        name: 'ETH Account',
+        solde: 0.0,
+        userModel: user,
+      ),
+    ];
+
+    await compteController.addCompte(comptes[0]);
+
+    await compteController.addCompte(comptes[1]);
+    await compteController.addCompte(comptes[2]);
+    await compteController.addCompte(comptes[3]);
   }
 
   void loadUserData() {

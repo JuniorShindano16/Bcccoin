@@ -1,5 +1,12 @@
+import 'package:bcccoin/controllers/comptController.dart';
+import 'package:bcccoin/controllers/userController.dart';
+import 'package:bcccoin/models/compteModel.dart';
+import 'package:bcccoin/models/userModel.dart';
+import 'package:bcccoin/utils/setting.dart';
+import 'package:bcccoin/views/auth/login.dart';
 import 'package:bcccoin/views/operationsViews/depotArgent.dart';
 import 'package:bcccoin/views/operationsViews/retraitArgent.dart';
+import 'package:bcccoin/views/userProfile/userProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:get/get.dart';
@@ -11,8 +18,32 @@ class PortfolioScreen extends StatefulWidget {
 }
 
 class _PortfolioScreenState extends State<PortfolioScreen> {
+  final UserController userController = Get.put(UserController());
   String selectedTab = "Mois"; // Onglet sélectionné par défaut
   List<FlSpot> chartData = []; // Données du graphique
+  void loadComptes() {
+    setState(() {
+      comptes =
+          compteController.compteBoxe.values.toList(); // Récupère les comptes
+      print("Comptes chargés : ${comptes[1].name} ${comptes[1].solde}");
+    });
+  }
+
+  void assignCompteCBC() {
+    setState(() {
+      CompteCBC = comptes.firstWhere(
+        (compte) => compte.devise == 'CBC',
+        orElse: () => CompteModel(
+            name: '', devise: 'CBC', solde: 0.0), // Objet par défaut
+      );
+    });
+  }
+
+  CompteController compteController = Get.put(CompteController());
+  List<CompteModel> comptes = [];
+  CompteModel? selectedCompte;
+  CompteModel? CompteCBC;
+  double tauxEchange = 1;
 
   double get minY => chartData.isNotEmpty
       ? chartData.map((e) => e.y).reduce((a, b) => a < b ? a : b)
@@ -32,6 +63,8 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
   void initState() {
     super.initState();
     _updateChartData("Mois"); // Initialisation des données pour "6M"
+    loadComptes();
+    assignCompteCBC();
   }
 
 // Met à jour les données en fonction du filtre
@@ -110,9 +143,11 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
 
   @override
   Widget build(BuildContext context) {
+    UserModel? user = userController.getUserModel();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.black,
         elevation: 0,
         title: Row(
@@ -120,17 +155,39 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'https://via.placeholder.com/150'), // Photo de profil
-                  radius: 20,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => UserProfilePage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    child: Center(
+                      child: Text(
+                        "${user!.name!.substring(0, 1)}",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                    ),
+                  ),
                 ),
                 SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Ralph Edwards",
+                      "${user.name!}",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -146,9 +203,16 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
             ),
             Row(
               children: [
-                Icon(Icons.notifications_none, color: Colors.white),
-                SizedBox(width: 10),
-                Icon(Icons.settings, color: Colors.white),
+                InkWell(
+                    onTap: () {
+                      // var rs = Setting.User_controller.logoutUser();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
+                      );
+                    },
+                    child: Icon(Icons.logout, size: 25, color: Colors.white)),
               ],
             ),
           ],
@@ -173,7 +237,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "CBC 33648.43",
+                      "CBC ${CompteCBC!.solde!.toStringAsFixed(2)}",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -243,7 +307,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              "Tendance de la monnaie",
+              "Tendance de la CBC",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -393,7 +457,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Valeur en \$",
+                  "Valeur en \$ et Solde",
                   style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               ],
@@ -403,11 +467,15 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               children: [
+                _buildPortfolioItem("Ethereum", "ETH", "Pas disponible",
+                    "\$24,849.71", Colors.blue),
                 _buildPortfolioItem(
-                    "Ethereum", "ETH", "3.13", "\$24,849.71", Colors.blue),
-                _buildPortfolioItem(
-                    "Bitcoin", "BTC", "0.49", "\$14,609.69", Colors.orange),
-                _buildPortfolioItem("Polygon", "MATIC", "13,370.64",
+                    "Bitcoin",
+                    "${comptes[3].devise}",
+                    "${comptes[3].solde!.toStringAsFixed(2)}",
+                    "\$14,609.69",
+                    Colors.orange),
+                _buildPortfolioItem("Polygon", "MATIC", "Pas disponible",
                     "\$10,305.42", Colors.purple),
               ],
             ),
@@ -443,28 +511,6 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
       ),
     );
   }
-
-  // Widget _buildTab(String label) {
-  //   return GestureDetector(
-  //     onTap: () {
-  //       setState(() {
-  //         selectedTab = label;
-  //         _updateChartData(label); // Met à jour les données du graphique
-  //       });
-  //     },
-  //     child: Text(
-  //       label,
-  //       style: TextStyle(
-  //         color: selectedTab == label ? Colors.white : Colors.grey,
-  //         fontSize: 14,
-  //         fontWeight:
-  //             selectedTab == label ? FontWeight.bold : FontWeight.normal,
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildTab(String label) {
 
   Widget _buildPortfolioItem(
       String name, String symbol, String quantity, String value, Color color) {
