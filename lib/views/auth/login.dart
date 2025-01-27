@@ -154,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   await Get.defaultDialog(
                                     title: "Connexion réussie",
                                     titleStyle: const TextStyle(
-                                      color: Color.fromARGB(255, 13, 110, 253),
+                                      color: Colors.green,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -183,8 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       children: [
                                         const Icon(
                                           Icons.check_circle_outline,
-                                          color:
-                                              Color.fromARGB(255, 13, 110, 253),
+                                          color: Colors.green,
                                           size: 50,
                                         ),
                                         const SizedBox(height: 10),
@@ -218,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Get.defaultDialog(
                                     title: "Erreur",
                                     titleStyle: const TextStyle(
-                                      color: Color.fromARGB(255, 13, 110, 253),
+                                      color: Colors.green,
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -242,8 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       children: [
                                         const Icon(
                                           Icons.error_outline,
-                                          color:
-                                              Color.fromARGB(255, 13, 110, 253),
+                                          color: Colors.green,
                                           size: 50,
                                         ),
                                         const SizedBox(height: 10),

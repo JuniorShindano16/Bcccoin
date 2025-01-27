@@ -35,20 +35,22 @@ class UserModel extends HiveObject {
 
   @HiveField(10)
   String? password;
+  @HiveField(11)
+  String? bankName;
 
-  UserModel({
-    this.id,
-    this.name,
-    this.phonenumber,
-    this.email,
-    this.dateOfBirth,
-    this.gender,
-    this.commune,
-    this.number,
-    this.avenue,
-    this.quartier,
-    this.password,
-  });
+  UserModel(
+      {this.id,
+      this.name,
+      this.phonenumber,
+      this.email,
+      this.dateOfBirth,
+      this.gender,
+      this.commune,
+      this.number,
+      this.avenue,
+      this.quartier,
+      this.password,
+      this.bankName});
 
   UserModel.fromJson(Map<String, dynamic> map) {
     id = map[Bdcolumnnames.UserId];
@@ -62,6 +64,7 @@ class UserModel extends HiveObject {
     avenue = map[Bdcolumnnames.UserAvenue]?.toString();
     quartier = map[Bdcolumnnames.UserQuartier]?.toString();
     commune = map[Bdcolumnnames.UserCommune]?.toString();
+    bankName = map[Bdcolumnnames.UserBankName]?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -77,6 +80,7 @@ class UserModel extends HiveObject {
       Bdcolumnnames.UserQuartier: quartier,
       Bdcolumnnames.UserCommune: commune,
       Bdcolumnnames.UserPassword: password,
+      Bdcolumnnames.UserBankName: bankName
     };
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:bcccoin/views/home.dart';
+import 'package:bcccoin/views/operationsViews/autresOperationSp.dart/operationsHome.dart';
 import 'package:bcccoin/views/operationsViews/dashboard.dart';
 import 'package:bcccoin/views/operationsViews/exchange.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class _BottomngnavbarreState extends State<Bottomngnavbarre> {
   List<Widget> sreensList = [
     PortfolioScreen(),
     ExchangeScreen(),
+    PaymentInterface(),
     CryptoDashboard(),
   ];
 
@@ -74,8 +76,18 @@ class _BottomngnavbarreState extends State<Bottomngnavbarre> {
                 ),
               ),
               GButton(
+                icon: Icons.calculate,
+                text: 'XY',
+                iconSize: 24,
+                textStyle: TextStyle(
+                  color: Colors.black, // Texte sur fond vert (onglet actif)
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              GButton(
                 icon: Icons.currency_exchange,
-                text: 'Transaction',
+                text: 'Trans',
                 iconSize: 24,
                 textStyle: TextStyle(
                   color: Colors.black, // Texte sur fond vert (onglet actif)

@@ -48,6 +48,10 @@ class _CryptoDashboardState extends State<CryptoDashboard> {
       );
 
       String? idAgent = transaction.idAgent;
+      String? libele = transaction.libele;
+      String? service = transaction.service;
+      String? proprietaire = transaction.proprietaire;
+      String? taux = transaction.taux.toString();
 
       if (compteSource != null && compteDestination != null) {
         structuredList.add({
@@ -55,7 +59,11 @@ class _CryptoDashboardState extends State<CryptoDashboard> {
           'compteDestination': compteDestination,
           'montantTransaction': transaction.montantTransaction,
           'date': transaction.date,
-          'idAgent': idAgent
+          'idAgent': idAgent,
+          'libele': libele,
+          'service': service,
+          'proprietaire': proprietaire,
+          'taux': taux
         });
       }
     }
@@ -201,8 +209,12 @@ class _CryptoDashboardState extends State<CryptoDashboard> {
                             transaction['compteDestination'];
                         final double amount = transaction['montantTransaction'];
                         final DateTime date = transaction['date'];
-                        final String? agent =
-                            transaction['idAgent'] ?? (randomString(length: 8));
+                        final String? agent = transaction['idAgent'];
+                        final String? libele = transaction['libele'];
+                        final String? service = transaction['service'];
+                        final String? proprietaire =
+                            transaction['proprietaire'];
+                        final String? taux = transaction['taux'];
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
@@ -239,14 +251,58 @@ class _CryptoDashboardState extends State<CryptoDashboard> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                'Tiers Utilisé: ${agent}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 12,
+                              if (libele != null && libele.isNotEmpty) ...[
+                                Text(
+                                  'Description: $libele',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
+                                const SizedBox(height: 4),
+                              ],
+                              if (taux != null &&
+                                  taux.trim().isNotEmpty &&
+                                  taux != 'null') ...[
+                                Text(
+                                  'Taux d\'échange: $taux',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                              ],
+                              if (service != null && service.isNotEmpty) ...[
+                                Text(
+                                  'Service: $service',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                              ],
+                              if (agent != null && agent.isNotEmpty) ...[
+                                Text(
+                                  'Compte concerné: $agent',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                              ],
+                              if (proprietaire != null) ...[
+                                Text(
+                                  'Propriétaire: $proprietaire',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                              ],
                               Text(
                                 'Date: ${date.toLocal()}',
                                 style: TextStyle(

@@ -8,18 +8,18 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
   @override
   UserModel read(BinaryReader reader) {
     return UserModel(
-      id: reader.read(),
-      name: reader.read(),
-      email: reader.read(),
-      phonenumber: reader.read(),
-      dateOfBirth: reader.read(),
-      gender: reader.read(),
-      number: reader.read(),
-      avenue: reader.read(),
-      quartier: reader.read(),
-      commune: reader.read(),
-      password: reader.read(),
-    );
+        id: reader.read(),
+        name: reader.read(),
+        email: reader.read(),
+        phonenumber: reader.read(),
+        dateOfBirth: reader.read(),
+        gender: reader.read(),
+        number: reader.read(),
+        avenue: reader.read(),
+        quartier: reader.read(),
+        commune: reader.read(),
+        password: reader.read(),
+        bankName: reader.read());
   }
 
   @override
@@ -35,5 +35,6 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
     writer.write(obj.quartier);
     writer.write(obj.commune);
     writer.write(obj.password);
+    writer.write(obj.bankName);
   }
 }

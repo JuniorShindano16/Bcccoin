@@ -24,6 +24,8 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
 
   TextEditingController montantController = TextEditingController();
   TextEditingController numeroAgentController = TextEditingController();
+  TextEditingController descriptionController =
+      TextEditingController(text: 'Dépot locale');
   bool isButtonActive = false; // Bouton "Continuer" actif ou inactif
 
   // Liste des comptes disponibles
@@ -93,7 +95,8 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
       bool success = await compteController.ravitaillerCompte(
           selectedCompte.id ?? '', // Assurez-vous que l'ID est valide
           montant,
-          numeroAgentController.text);
+          numeroAgentController.text,
+          descriptionController.text);
 
       if (success) {
         setState(() {
@@ -263,6 +266,23 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                             Icon(Icons.phone_android, color: Colors.white),
                       ),
                     ),
+                    // SizedBox(height: 16),
+                    // // Numéro Agent
+                    // TextField(
+                    //   keyboardType: TextInputType.phone,
+                    //   controller: descriptionController,
+                    //   style: TextStyle(color: Colors.white),
+                    //   decoration: InputDecoration(
+                    //     labelText: "Description",
+                    //     labelStyle: TextStyle(color: Colors.grey),
+                    //     filled: true,
+                    //     fillColor: Colors.grey[850],
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(8),
+                    //       borderSide: BorderSide.none,
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(height: 16),
                     // Montant
                     TextField(
@@ -279,7 +299,7 @@ class _DepotAgentPageState extends State<DepotAgentPage> {
                           borderSide: BorderSide.none,
                         ),
                         suffix: Text(
-                          "Solde actuel: ${selectedCompte != null ? selectedCompte!.solde : 0}",
+                          "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(1) : 0}",
                           style: TextStyle(color: Colors.green, fontSize: 14),
                         ),
                       ),

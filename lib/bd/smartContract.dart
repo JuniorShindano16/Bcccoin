@@ -130,3 +130,13 @@ class SmartContract {
 //     print('Error: $e');
 //   }
 // }
+
+
+// Mon sujet est la création d'une monnaie numérique base sur blockchain pour la bcc
+
+// Lors de la création de compte, il faut un champ obligatoire de nom de la banque commerciale,vu seul les banques commerciales ont droit à créer un compte utilisateur pour un user 
+
+// 1.  Notre monnaie numérique doit être comme le stablecoin ( ex: usdt) 
+// 2. Vu que moi je vais présenter juste le Wallet, ce wallet peut faire une simulation d 'envoyer  entre 2 wallets .
+// 3. Si possible de faire l'authentification à 2 facteurs( pas vraiment important si vous n'arrivez pas)
+// 4.ajouter d'autres méthodes paiement ( vu que on peut payer les factures avec cette monnaie )

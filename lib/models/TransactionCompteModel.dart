@@ -35,6 +35,12 @@ class TransactionCompteModel extends HiveObject {
 
   @HiveField(10)
   String? idAgent;
+  @HiveField(11)
+  String? libele;
+  @HiveField(12)
+  String? service;
+  @HiveField(13)
+  String? proprietaire;
 
   TransactionCompteModel(
       {this.id,
@@ -47,7 +53,10 @@ class TransactionCompteModel extends HiveObject {
       this.soldeDestination,
       this.taux,
       this.date,
-      this.idAgent});
+      this.idAgent,
+      this.libele,
+      this.service,
+      this.proprietaire});
 
   TransactionCompteModel.fromJson(Map<String, dynamic> map) {
     id = map[Bdcolumnnames.TransactionCompteId];
@@ -66,6 +75,9 @@ class TransactionCompteModel extends HiveObject {
     date = DateTime.tryParse(
         map[Bdcolumnnames.TransactionCompteDate]?.toString() ?? '');
     idAgent = map[Bdcolumnnames.TransactionCompteidAgent]?.toString();
+    libele = map[Bdcolumnnames.TransactionCompteLibele]?.toString();
+    service = map[Bdcolumnnames.TransactionCompteService]?.toString();
+    proprietaire = map[Bdcolumnnames.TransactionCompteproprietaire]?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -81,7 +93,10 @@ class TransactionCompteModel extends HiveObject {
       Bdcolumnnames.TransactionCompteSoldeDestination: soldeDestination,
       Bdcolumnnames.TransactionCompteTaux: taux,
       Bdcolumnnames.TransactionCompteDate: date?.toIso8601String(),
-      Bdcolumnnames.TransactionCompteidAgent: idAgent
+      Bdcolumnnames.TransactionCompteidAgent: idAgent,
+      Bdcolumnnames.TransactionCompteLibele: libele,
+      Bdcolumnnames.TransactionCompteService: service,
+      Bdcolumnnames.TransactionCompteproprietaire: proprietaire,
     };
   }
 }

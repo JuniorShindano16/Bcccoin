@@ -265,6 +265,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Id Compte: ', // Affichage du titre "Numéro"
+                style: const TextStyle(
+                  color: Colors.white70,
+                ),
+              ),
+              // Utilisation de Flexible pour éviter le dépassement
+              Flexible(
+                child: Text(
+                  '${account.id ?? 'N/A'}',
+                  style: const TextStyle(color: Colors.white70),
+                  overflow: TextOverflow
+                      .ellipsis, // Ajoute des points de suspension si le texte dépasse
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

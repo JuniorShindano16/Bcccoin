@@ -19,6 +19,10 @@ class TransactionCompteModelAdapter
       soldeDestination: reader.read(),
       taux: reader.read(),
       date: reader.read(),
+      idAgent: reader.read(),
+      libele: reader.read(),
+      service: reader.read(),
+      proprietaire: reader.read(),
     );
   }
 
@@ -34,5 +38,9 @@ class TransactionCompteModelAdapter
     writer.write(obj.soldeDestination);
     writer.write(obj.taux);
     writer.write(obj.date);
+    writer.write(obj.idAgent);
+    writer.write(obj.libele);
+    writer.write(obj.service);
+    writer.write(obj.proprietaire);
   }
 }

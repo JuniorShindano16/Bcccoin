@@ -3,12 +3,12 @@ import 'package:bcccoin/models/compteModel.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class RetraitAgentPage extends StatefulWidget {
+class autreFactureTvPage extends StatefulWidget {
   @override
-  _RetraitAgentPageState createState() => _RetraitAgentPageState();
+  _autreFactureTvPageState createState() => _autreFactureTvPageState();
 }
 
-class _RetraitAgentPageState extends State<RetraitAgentPage> {
+class _autreFactureTvPageState extends State<autreFactureTvPage> {
   String selectedCurrency = 'CDF'; // Devise sélectionnée par défaut
   double currentBalance = 35466.0; // Solde par défaut pour CDF
   List<double> quickAmountsCDF = [
@@ -25,12 +25,13 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
   CompteController compteController = Get.put(CompteController());
 
   TextEditingController montantController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController numeroAgentController = TextEditingController();
-  TextEditingController description = TextEditingController(text: 'Retrait');
   bool isButtonActive = false; // Bouton "Continuer" actif ou inactif
   List<CompteModel> comptes = [];
   List<CompteModel> comptesTop = [];
   CompteModel? selectedCompte;
+  String? selectedService;
 
   // Fonction pour mettre à jour les données selon la devise choisie
   void updateCurrency(CompteModel? selectedCompte) {
@@ -75,11 +76,12 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
 
       // Vérifiez si le solde est suffisant
       if (selectedCompte.solde != null && montant <= selectedCompte.solde!) {
-        bool success = await compteController.retirerArgent(
+        bool success = await compteController.retirerArgentPourAchatTv(
             selectedCompte.id ?? '',
             montant,
             numeroAgentController.text,
-            description.text);
+            descriptionController.text,
+            selectedService);
 
         if (success) {
           setState(() {
@@ -88,16 +90,16 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
             currentBalance = selectedCompte.solde ?? 0.0;
           });
 
-          _showDialog("Succès", "Retrait avec succès!");
+          _showDialog("Succès", "Paiement effectuer avec succès!");
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur lors du retrait'),
+            content: Text('Erreur lors de Achat'),
             backgroundColor: Colors.red,
           ));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Solde insuffisant pour effectuer ce retrait'),
+          content: Text('Solde insuffisant pour effectuer ce paiement'),
           backgroundColor: Colors.red,
         ));
       }
@@ -176,7 +178,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
         backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
-          "Retrait auprès d'un Agent",
+          "Payer Factures",
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
@@ -210,7 +212,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Retrait de: ",
+                          "Acheter avec de: ",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                         DropdownButton<CompteModel>(
@@ -246,6 +248,40 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                       ],
                     ),
                     SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Service TV: ",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        DropdownButton<String>(
+                          value: selectedService,
+                          dropdownColor: Colors.grey[900],
+                          style: TextStyle(color: Colors.white),
+                          icon:
+                              Icon(Icons.arrow_drop_down, color: Colors.white),
+                          items: ['SNEL', 'REGIDESO', 'AUTRES'].map((service) {
+                            return DropdownMenuItem<String>(
+                              value: service,
+                              child: Text(
+                                service,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedService =
+                                  value; // Met à jour la sélection du service
+                              // Ajoutez toute logique supplémentaire selon le service sélectionné
+                            });
+                            // validateForm();
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
                     // Numéro Agent
                     TextField(
                       keyboardType: TextInputType.phone,
@@ -267,6 +303,27 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                     SizedBox(height: 16),
                     // Montant
                     TextField(
+                      controller: descriptionController,
+                      style: TextStyle(color: Colors.white),
+                      // keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        labelStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey[850],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        // suffix: Text(
+                        //   "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(2) : 0}",
+                        //   style: TextStyle(color: Colors.green, fontSize: 14),
+                        // ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // Montant
+                    TextField(
                       controller: montantController,
                       style: TextStyle(color: Colors.white),
                       keyboardType: TextInputType.number,
@@ -280,7 +337,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                           borderSide: BorderSide.none,
                         ),
                         suffix: Text(
-                          "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(1) : 0}",
+                          "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(2) : 0}",
                           style: TextStyle(color: Colors.green, fontSize: 14),
                         ),
                       ),
@@ -339,7 +396,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
         padding: EdgeInsets.symmetric(vertical: 12),
       ),
       child: Text(
-        "${amount.toStringAsFixed(1)} ${selectedCompte?.devise}",
+        "${amount.toStringAsFixed(1)} ${selectedCompte != null ? selectedCompte?.devise : "CDF"}",
         style: TextStyle(color: Colors.white, fontSize: 8),
       ),
     );

@@ -3,12 +3,12 @@ import 'package:bcccoin/models/compteModel.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class RetraitAgentPage extends StatefulWidget {
+class effectuerAChatpage extends StatefulWidget {
   @override
-  _RetraitAgentPageState createState() => _RetraitAgentPageState();
+  _effectuerAChatpageState createState() => _effectuerAChatpageState();
 }
 
-class _RetraitAgentPageState extends State<RetraitAgentPage> {
+class _effectuerAChatpageState extends State<effectuerAChatpage> {
   String selectedCurrency = 'CDF'; // Devise sélectionnée par défaut
   double currentBalance = 35466.0; // Solde par défaut pour CDF
   List<double> quickAmountsCDF = [
@@ -25,8 +25,8 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
   CompteController compteController = Get.put(CompteController());
 
   TextEditingController montantController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController numeroAgentController = TextEditingController();
-  TextEditingController description = TextEditingController(text: 'Retrait');
   bool isButtonActive = false; // Bouton "Continuer" actif ou inactif
   List<CompteModel> comptes = [];
   List<CompteModel> comptesTop = [];
@@ -68,18 +68,18 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
     if (selectedCompte != null) {
       double montant = double.parse(montantController.text);
 
-      print(
-          'Tentative de retrait de $montant du compte ID: ${selectedCompte.id}');
-      print(
-          'Compte sélectionné : ${selectedCompte.name}, Solde : ${selectedCompte.solde}, Devise : ${selectedCompte.devise}');
+      // print(
+      //     'Tentative de retrait de $montant du compte ID: ${selectedCompte.id}');
+      // print(
+      //     'Compte sélectionné : ${selectedCompte.name}, Solde : ${selectedCompte.solde}, Devise : ${selectedCompte.devise}');
 
       // Vérifiez si le solde est suffisant
       if (selectedCompte.solde != null && montant <= selectedCompte.solde!) {
-        bool success = await compteController.retirerArgent(
+        bool success = await compteController.retirerArgentPourAchat(
             selectedCompte.id ?? '',
             montant,
             numeroAgentController.text,
-            description.text);
+            descriptionController.text);
 
         if (success) {
           setState(() {
@@ -88,16 +88,16 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
             currentBalance = selectedCompte.solde ?? 0.0;
           });
 
-          _showDialog("Succès", "Retrait avec succès!");
+          _showDialog("Succès", "Achat effectuer avec succès!");
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur lors du retrait'),
+            content: Text('Erreur lors de Achat'),
             backgroundColor: Colors.red,
           ));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Solde insuffisant pour effectuer ce retrait'),
+          content: Text('Solde insuffisant pour effectuer cet Achat'),
           backgroundColor: Colors.red,
         ));
       }
@@ -176,7 +176,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
         backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
-          "Retrait auprès d'un Agent",
+          "Effectuer Achat",
           style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
@@ -210,7 +210,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Retrait de: ",
+                          "Acheter avec de: ",
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                         DropdownButton<CompteModel>(
@@ -267,6 +267,27 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                     SizedBox(height: 16),
                     // Montant
                     TextField(
+                      controller: descriptionController,
+                      style: TextStyle(color: Colors.white),
+                      // keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Description",
+                        labelStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey[850],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                        // suffix: Text(
+                        //   "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(2) : 0}",
+                        //   style: TextStyle(color: Colors.green, fontSize: 14),
+                        // ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // Montant
+                    TextField(
                       controller: montantController,
                       style: TextStyle(color: Colors.white),
                       keyboardType: TextInputType.number,
@@ -280,7 +301,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
                           borderSide: BorderSide.none,
                         ),
                         suffix: Text(
-                          "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(1) : 0}",
+                          "Solde actuel: ${selectedCompte != null ? (selectedCompte!.solde!).toStringAsFixed(2) : 0}",
                           style: TextStyle(color: Colors.green, fontSize: 14),
                         ),
                       ),
@@ -339,7 +360,7 @@ class _RetraitAgentPageState extends State<RetraitAgentPage> {
         padding: EdgeInsets.symmetric(vertical: 12),
       ),
       child: Text(
-        "${amount.toStringAsFixed(1)} ${selectedCompte?.devise}",
+        "${amount.toStringAsFixed(1)} ${selectedCompte != null ? selectedCompte?.devise : "CDF"}",
         style: TextStyle(color: Colors.white, fontSize: 8),
       ),
     );

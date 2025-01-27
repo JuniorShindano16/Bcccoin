@@ -6,6 +6,7 @@ import 'package:bcccoin/models/userModel.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:get/get.dart';
+import 'dart:math';
 
 class UserController extends GetxController {
   late Box<UserModel> userBoxe;
@@ -75,6 +76,7 @@ class UserController extends GetxController {
 
       // Générer un ID unique
       user.id = userBoxe.length + 1;
+      user.bankName = choisirBanqueCommercial();
 
       // Sauvegarder l'utilisateur
       await userBoxe.add(user);
@@ -164,5 +166,31 @@ class UserController extends GetxController {
       print('Erreur de chargement initial: $e');
       return false;
     }
+  }
+
+  String choisirBanqueCommercial() {
+    // Liste des banques disponibles en RDC
+    List<String> banques = [
+      "Rawbank",
+      "Trust Merchant Bank (TMB)",
+      "Equity Bank",
+      "Banque Commerciale du Congo (BCDC)",
+      "Afriland First Bank",
+      "United Bank for Africa (UBA)",
+      "Ecobank",
+      "FBNBank",
+      "Advans Banque",
+      "Access Bank",
+      "Standard Bank"
+    ];
+
+    if (banques.isEmpty) {
+      throw Exception(
+          "La liste des banques est vide. Veuillez ajouter des banques.");
+    }
+
+    int indexAleatoire = Random().nextInt(banques.length);
+
+    return banques[indexAleatoire];
   }
 }

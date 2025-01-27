@@ -22,7 +22,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
   CompteModel? CompteCBC;
   double tauxEchange = 1;
 
-  double? sellingAmount;
+  double? sellingAmount = 0;
   double buyingAmount = 0;
   String selectedCurrency = "CDF"; // Devise sélectionnée par défaut
 
@@ -383,6 +383,8 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
                               setState(() {
                                 selectedCompte = value;
                                 buyingAmount = sellingAmount! * tauxEchange;
+                                print(buyingAmount);
+                                print(sellingAmount);
                               });
                               // Met à jour le taux
                             },

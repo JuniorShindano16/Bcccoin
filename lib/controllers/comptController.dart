@@ -139,8 +139,8 @@ class CompteController extends GetxController {
     }
   }
 
-  Future<bool> retirerArgent(
-      String compteId, double montant, String Numero) async {
+  Future<bool> retirerArgentPourVirement(String compteId, double montant,
+      String Numero, String libele, String proprietaire) async {
     try {
       final compte = compteBoxe.values.firstWhere(
         (c) => c.id == compteId,
@@ -159,17 +159,22 @@ class CompteController extends GetxController {
       await compte.save();
 
       final transaction = TransactionCompteModel(
-          id: transactionCompteBoxe.length + 1,
-          compteSourceId: compteId,
-          compteDestinationId: null,
-          montantTransaction: -montant,
-          soldeSourceAvant: soldeAvant,
-          soldeSource: nouveauSolde,
-          soldeDestinationAvant: null,
-          soldeDestination: null,
-          taux: null,
-          date: DateTime.now(),
-          idAgent: Numero);
+        id: transactionCompteBoxe.length + 1,
+        compteSourceId: compteId,
+        compteDestinationId: null,
+        montantTransaction: -montant,
+        soldeSourceAvant: soldeAvant,
+        soldeSource: nouveauSolde,
+        soldeDestinationAvant: null,
+        soldeDestination: null,
+        taux: null,
+        date: DateTime.now(),
+        idAgent: Numero,
+        libele: libele,
+        proprietaire: proprietaire,
+      );
+
+      print('propriooooooooo : ${transaction.proprietaire}');
 
       await transactionCompteBoxe.add(transaction);
 
@@ -181,8 +186,145 @@ class CompteController extends GetxController {
     }
   }
 
-  Future<bool> ravitaillerCompte(
-      String compteId, double montant, String numero) async {
+  Future<bool> retirerArgentPourAchat(
+      String compteId, double montant, String Numero, String libele) async {
+    try {
+      final compte = compteBoxe.values.firstWhere(
+        (c) => c.id == compteId,
+      );
+
+      double soldeAvant = compte.solde ?? 0.0;
+
+      if (soldeAvant < montant) {
+        print("Solde insuffisant pour effectuer cette opération");
+        return false;
+      }
+
+      double nouveauSolde = soldeAvant - montant;
+
+      compte.solde = nouveauSolde;
+      await compte.save();
+
+      final transaction = TransactionCompteModel(
+        id: transactionCompteBoxe.length + 1,
+        compteSourceId: compteId,
+        compteDestinationId: null,
+        montantTransaction: -montant,
+        soldeSourceAvant: soldeAvant,
+        soldeSource: nouveauSolde,
+        soldeDestinationAvant: null,
+        soldeDestination: null,
+        taux: null,
+        date: DateTime.now(),
+        idAgent: Numero,
+        libele: libele,
+      );
+
+      await transactionCompteBoxe.add(transaction);
+
+      print("Montant retiré avec succès : -$montant");
+      return true;
+    } catch (e) {
+      print("Erreur lors du retrait : $e");
+      return false;
+    }
+  }
+
+  Future<bool> retirerArgentPourAchatTv(String compteId, double montant,
+      String Numero, String libele, service) async {
+    try {
+      final compte = compteBoxe.values.firstWhere(
+        (c) => c.id == compteId,
+      );
+
+      double soldeAvant = compte.solde ?? 0.0;
+
+      if (soldeAvant < montant) {
+        print("Solde insuffisant pour effectuer cette opération");
+        return false;
+      }
+
+      double nouveauSolde = soldeAvant - montant;
+
+      compte.solde = nouveauSolde;
+      await compte.save();
+
+      final transaction = TransactionCompteModel(
+        id: transactionCompteBoxe.length + 1,
+        compteSourceId: compteId,
+        compteDestinationId: null,
+        montantTransaction: -montant,
+        soldeSourceAvant: soldeAvant,
+        soldeSource: nouveauSolde,
+        soldeDestinationAvant: null,
+        soldeDestination: null,
+        taux: null,
+        date: DateTime.now(),
+        idAgent: Numero,
+        libele: libele,
+      );
+
+      await transactionCompteBoxe.add(transaction);
+
+      print("Montant retiré avec succès : -$montant");
+      return true;
+    } catch (e) {
+      print("Erreur lors du retrait : $e");
+      return false;
+    }
+  }
+
+  Future<bool> retirerArgent(
+      String compteId, double montant, String Numero, String libele) async {
+    try {
+      final compte = compteBoxe.values.firstWhere(
+        (c) => c.id == compteId,
+      );
+
+      double soldeAvant = compte.solde ?? 0.0;
+
+      if (soldeAvant < montant) {
+        print("Solde insuffisant pour effectuer cette opération");
+        return false;
+      }
+
+      double nouveauSolde = soldeAvant - montant;
+
+      compte.solde = nouveauSolde;
+      await compte.save();
+
+      CompteModel? compteTransaction;
+
+      compteTransaction!.devise = compte.devise;
+      compteTransaction.name = Numero + compte.devise!;
+      compteTransaction.id = "56";
+
+      final transaction = TransactionCompteModel(
+          id: transactionCompteBoxe.length + 1,
+          compteSourceId: compteId,
+          compteDestinationId: compteTransaction.name,
+          montantTransaction: -montant,
+          soldeSourceAvant: soldeAvant,
+          soldeSource: nouveauSolde,
+          soldeDestinationAvant: null,
+          soldeDestination: null,
+          taux: null,
+          date: DateTime.now(),
+          idAgent: Numero,
+          libele: '$libele chez agent $Numero');
+
+      await transactionCompteBoxe.add(transaction);
+
+      print("Montant retiré avec succès : -$montant");
+      return true;
+    } catch (e) {
+      print("Erreur lors du retrait : $e");
+      return false;
+    }
+  }
+
+  Future<bool> ravitaillerCompte(String compteId, double montant, String numero,
+      String description) async {
     try {
       final compte = compteBoxe.values.firstWhere(
         (c) => c.id == compteId,
@@ -194,12 +336,17 @@ class CompteController extends GetxController {
       // Mise à jour du solde du compte
       compte.solde = nouveauSolde;
       await compte.save();
+      CompteModel? compteTransaction;
+
+      compteTransaction!.devise = compte.devise;
+      compteTransaction.name = numero + compte.devise!;
+      compteTransaction.id = "56";
 
       // Création de la transaction
       final transaction = TransactionCompteModel(
           id: transactionCompteBoxe.length + 1,
           compteSourceId: compteId,
-          compteDestinationId: null,
+          compteDestinationId: compteTransaction.name,
           montantTransaction: montant,
           soldeSourceAvant: soldeAvant,
           soldeSource: nouveauSolde,
@@ -207,7 +354,8 @@ class CompteController extends GetxController {
           soldeDestination: null,
           taux: null,
           date: DateTime.now(),
-          idAgent: numero);
+          idAgent: numero,
+          libele: description);
 
       // Ajout de la transaction
       await transactionCompteBoxe.add(transaction);
